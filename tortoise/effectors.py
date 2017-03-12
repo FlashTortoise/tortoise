@@ -1,3 +1,5 @@
+from . import config
+
 
 class Wheels(object):
     def __init__(self):
@@ -5,7 +7,12 @@ class Wheels(object):
         from gpiozero import Motor
         self.Motor = Motor
         self.mq, self.mw, self.ma, self.ms = map(
-            Motor, []*4
+            Motor, [
+                config.WHEELS_PINMAP_LF,
+                config.WHEELS_PINMAP_LB,
+                config.WHEELS_PINMAP_RF,
+                config.WHEELS_PINMAP_RB,
+            ]
         )
 
     def set(self, l, r):

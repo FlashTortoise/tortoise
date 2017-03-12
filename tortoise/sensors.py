@@ -2,6 +2,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 
 from globals import ctx
+from . import config
 
 ctx.sensing_cache = defaultdict(lambda: None)
 
@@ -43,7 +44,12 @@ class Recorder(object):
 class Eye(object):
     def __init__(self):
         import cv2
-        self._cap = cv2.VideoCapture(0)
+        self._cap = cv2.VideoCapture(config.EYE_CAPTURE_ID)
+
+        width, height = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
+        if height is not None and width is not None:
+            self._cap.set(3, width)
+            self._cap.set(4, width)
 
     @with_cache
     def see(self):
