@@ -42,8 +42,12 @@ class Recorder(object):
 
 class Eye(object):
     def __init__(self):
-        pass
+        import cv2
+        self._cap = cv2.VideoCapture(0)
 
     @with_cache
     def see(self):
-        pass
+        _, img = self._cap.read()
+        while img is None:
+            img = self._cap.get()
+        return img
