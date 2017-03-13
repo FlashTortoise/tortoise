@@ -8,10 +8,10 @@ class Wheels(object):
         self.Motor = Motor
         self.mq, self.mw, self.ma, self.ms = map(
             Motor, [
-                config.WHEELS_PINMAP_LF,
-                config.WHEELS_PINMAP_LB,
-                config.WHEELS_PINMAP_RF,
-                config.WHEELS_PINMAP_RB,
+                config.WHEELS_PINS_LF,
+                config.WHEELS_PINS_LB,
+                config.WHEELS_PINS_RF,
+                config.WHEELS_PINS_RB,
             ]
         )
 
