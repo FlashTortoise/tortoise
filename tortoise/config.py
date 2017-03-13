@@ -8,3 +8,5 @@ WHEELS_PINS_RF = ()
 WHEELS_PINS_RB = ()
 
 TORTOISE_WALK_PERIOD = 0.1
+
+RECORDER_PATH = '~/tortoise/'
