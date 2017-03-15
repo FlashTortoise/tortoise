@@ -12,27 +12,26 @@ from . import config
 ctx.recorder = None
 
 
-@contextmanager
-def a_recorder(name=None):
-    if ctx.recorder is not None:
-        raise Exception('Already exist a recorder')
-
-    ctx.recorder = Recorder(name)
-
-    # noinspection PyProtectedMember
-    with ctx.recorder._recoding():
-        yield
-
-    ctx.recorder = None
+def finalize_recorders():
+    if isinstance(ctx.recorder, Recorder):
+        ctx.recorder.teardown()
+ctx.finalization.append(finalize_recorders)
 
 
-def get_recorder():
-    if ctx.recorder is None:
-        raise Exception('No recorder in this context')
-    elif not isinstance(ctx.recorder, Recorder):
-        raise Exception('It is not a recorder')
+def get_recorder(name=None):
+    rec = ctx.recorder
+    if rec is None:
+        ctx.recorder = Recorder(name)
     else:
-        return ctx.recorder
+        if isinstance(rec, Recorder):
+            if rec.name == name:
+                pass
+            else:
+                rec.teardown()
+                ctx.recorder = Recorder(name)
+        else:
+            raise Exception('It is not a recorder')
+    return ctx.recorder
 
 
 class Recorder(object):
@@ -40,11 +39,15 @@ class Recorder(object):
         if name is None:
             name = ''.join(random.sample(string.hexdigits, 8))
         self.name = name
+        self.file_path = os.path.join(
+            self._get_storage_path(), self.name + 'json')
 
         self.name_count = None
         self.data = None
         self.group_cache = None
         self._insert = self._insert_one
+
+        self.startup()
 
     def _get_storage_path(self):
         return os.path.join(config.RECORDER_PATH, self.name)
@@ -67,6 +70,21 @@ class Recorder(object):
     def _insert_group(self, key, val):
         self.group_cache[key] = val
 
+    def startup(self):
+        try:
+            with open(self.file_path) as f:
+                self.data = json.load(f)
+        except IOError as e:
+            if e.errno == 2:
+                self.data = []
+            else:
+                raise e
+
+    def teardown(self):
+        f = open(self.file_path, 'w')
+        json.dump(self.data, f)
+        f.close()
+
     def record_img(self, name, img):
         file_name = self._get_incremental_name() + '.jpg'
         cv2.imwrite(
@@ -88,21 +106,3 @@ class Recorder(object):
         yield
         self._insert = self._insert_one
         self.group_cache = None
-
-    @contextmanager
-    def _recording(self):
-        file_path = os.path.join(self._get_storage_path(), self.name + 'json')
-        try:
-            with open(file_path) as f:
-                self.data = json.load(f)
-        except IOError as e:
-            if e.errno == 2:
-                self.data = []
-            else:
-                raise e
-
-        yield
-
-        f = open(file_path, 'w')
-        json.dump(self.data, f)
-        f.close()

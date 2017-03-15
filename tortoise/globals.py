@@ -21,3 +21,5 @@ class ContextGlobal(object):
         return self.__dict__.__iter__()
 
 ctx = ContextGlobal()
+
+ctx.finalization = []
