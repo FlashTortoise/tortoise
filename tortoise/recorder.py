@@ -9,6 +9,10 @@ from contextlib import contextmanager
 from .globals import ctx
 from . import config
 
+import os
+if not os.path.exists(config.RECORDER_PATH):
+    raise Exception('Recording dir is not exist')
+
 ctx.recorder = None
 
 
@@ -40,7 +44,7 @@ class Recorder(object):
             name = ''.join(random.sample(string.hexdigits, 8))
         self.name = name
         self.file_path = os.path.join(
-            self._get_storage_path(), self.name + 'json')
+            self._get_storage_path(), self.name + '.json')
 
         self.name_count = None
         self.data = None
@@ -55,14 +59,18 @@ class Recorder(object):
     def _get_incremental_name(self):
         if self.name_count is None:
             file_names = [
-                int(name) for name in os.listdir(self._get_storage_path())
-                if name.split()[0].isdigit()]
+                int(name.split('.')[0])
+                for name in os.listdir(self._get_storage_path())
+                if name.split('.')[0].isdigit()
+            ]
             if len(file_names) == 0:
                 self.name_count = 0
             else:
                 self.name_count = max(file_names)
+        else:
+            self.name_count += 1
 
-        return self.name_count
+        return str(self.name_count)
 
     def _insert_one(self, key, val):
         self.data.append({key: val})
@@ -71,6 +79,9 @@ class Recorder(object):
         self.group_cache[key] = val
 
     def startup(self):
+        if not os.path.exists(self._get_storage_path()):
+            os.mkdir(self._get_storage_path())
+
         try:
             with open(self.file_path) as f:
                 self.data = json.load(f)
