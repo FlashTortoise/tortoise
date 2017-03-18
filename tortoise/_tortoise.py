@@ -5,8 +5,6 @@ from globals import ctx
 from sensors import cache_input
 from . import config
 
-PERIOD = 0.1
-
 
 @contextmanager
 def exclusive_run():
@@ -26,7 +24,9 @@ def in_a_period():
     if remaining > 0:
         time.sleep(remaining)
     else:
-        raise Exception('running time exceed period')
+        pass
+        # Try some other non-interruption solutions
+        # raise Exception('running time exceed period')
 
 
 class Tortoise(object):
@@ -35,7 +35,15 @@ class Tortoise(object):
         pass
 
     def walk(self):
-        while True:
-            with in_a_period:
-                with cache_input:
-                    self.task.step()
+        try:
+            while True:
+                with in_a_period():
+                    with cache_input():
+                        self.task.step()
+        except KeyboardInterrupt:
+            print 'finalize'
+            for fun in ctx.finalization:
+                try:
+                    fun()
+                except Exception as e:
+                    print e.message
