@@ -116,4 +116,5 @@ class Recorder(object):
         self._insert = self._insert_group
         yield
         self._insert = self._insert_one
+        self.data.append(self.group_cache)
         self.group_cache = None
