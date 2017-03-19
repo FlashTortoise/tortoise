@@ -1,3 +1,3 @@
-import sensors
+# import sensors
 
-eye = sensors.Eye()
+# eye = sensors.Eye()
