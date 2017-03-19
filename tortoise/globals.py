@@ -33,6 +33,8 @@ class Peripheral(ContextGlobal):
             cls = getattr(module, cls)
 
             self.__dict__['item'] = cls()
+
+            return self.item
         else:
             raise AttributeError("Tortoise doesn't have such peripheral")
 
