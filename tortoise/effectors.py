@@ -34,11 +34,11 @@ class Wheels(object):
         self.mw.value = w
         self.ms.value = s
 
-        with self._read_lock():
+        with self._read_lock:
             self._cache_speed = q, w, a, s
 
     def get_raw(self):
-        with self._read_lock():
+        with self._read_lock:
             return tuple(self._cache_speed)
 
     def get_lr(self):
