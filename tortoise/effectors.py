@@ -43,7 +43,7 @@ class Wheels(object):
 
     def get_lr(self):
         q, w, a, s = self.get_raw()
-        return (q + w) / 2 + (w + s) / 2
+        return (q + w) / 2, (w + s) / 2
 
     def get_diff(self):
         l, r = self.get_lr()
