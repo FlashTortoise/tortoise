@@ -23,7 +23,7 @@ class ContextGlobal(object):
         return self.__dict__.__iter__()
 
 
-class Peripheral(ContextGlobal):
+class Peripheral(object):
     def __getattr__(self, item):
         if item in config.PERIPHERAL_SUPPORTED.keys():
             import_string = config.PERIPHERAL_SUPPORTED[item]
@@ -32,9 +32,9 @@ class Peripheral(ContextGlobal):
             module = __import__(module, fromlist=[cls])
             cls = getattr(module, cls)
 
-            self.__dict__['item'] = cls()
+            self.__dict__[item] = ins = cls()
 
-            return self.item
+            return ins
         else:
             raise AttributeError("Tortoise doesn't have such peripheral")
 

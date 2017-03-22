@@ -14,5 +14,5 @@ RECORDER_PATH = '.'
 
 PERIPHERAL_SUPPORTED = {
     'eye': 'tortoise.sensors.Eye',
-    'wheels': 'tortoise.effects.Wheels'
+    'wheels': 'tortoise.effectors.Wheels'
 }
