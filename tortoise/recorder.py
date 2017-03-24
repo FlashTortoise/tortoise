@@ -6,6 +6,8 @@ import string
 import random
 from contextlib import contextmanager
 
+import time
+
 from .globals import ctx
 from . import config
 
@@ -70,7 +72,7 @@ class Recorder(object):
         else:
             self.name_count += 1
 
-        return str(self.name_count)
+        return str(self.name_count).rjust(8, '0')
 
     def _insert_one(self, key, val):
         self.data.append({key: val})
