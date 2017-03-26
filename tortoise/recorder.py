@@ -1,10 +1,11 @@
 import os
 
-import json
-import cv2
 import string
 import random
 from contextlib import contextmanager
+import json
+import cv2
+import numpy
 
 from .globals import ctx
 from . import config
@@ -23,6 +24,13 @@ ctx.finalization.append(finalize_recorders)
 
 
 def get_recorder(name=None):
+    # type: (str) -> Recorder
+    """
+    Use this function to get a recorder
+    :param name: the name of recorder. If there is not specified,
+    a random name will be used.
+    :return: instance of Recorder
+    """
     rec = ctx.recorder
     if rec is None:
         ctx.recorder = Recorder(name)
@@ -95,6 +103,12 @@ class Recorder(object):
         f.close()
 
     def record_img(self, name, img):
+        # type: (str, numpy.ndarray) -> None
+        """
+        This function is used to record an image (of type `numpy.ndarray`)
+        :param name: Specifying name of image
+        :param img: The actual image data
+        """
         file_name = self._get_incremental_name() + '.jpg'
         cv2.imwrite(
             os.path.join(
@@ -106,6 +120,12 @@ class Recorder(object):
         self._insert(name, file_name)
 
     def record_plain(self, name, var):
+        # type: (str, object) -> None
+        """
+        Used to record any non-image data like string and numbers
+        :param name: Specifying name of variable
+        :param var: The var that need recording
+        """
         self._insert(name, var)
 
     @contextmanager
