@@ -6,8 +6,6 @@ import string
 import random
 from contextlib import contextmanager
 
-import time
-
 from .globals import ctx
 from . import config
 
@@ -20,7 +18,7 @@ ctx.recorder = None
 
 def finalize_recorders():
     if isinstance(ctx.recorder, Recorder):
-        ctx.recorder.teardown()
+        ctx.recorder.close()
 ctx.finalization.append(finalize_recorders)
 
 
@@ -33,7 +31,7 @@ def get_recorder(name=None):
             if rec.name == name:
                 pass
             else:
-                rec.teardown()
+                rec.close()
                 ctx.recorder = Recorder(name)
         else:
             raise Exception('It is not a recorder')
@@ -55,7 +53,19 @@ class Recorder(object):
         self.group_cache = None
         self._insert = self._insert_one
 
-        self.startup()
+        # Make one if record folder is not here
+        if not os.path.exists(self._folder_path):
+            os.mkdir(self._folder_path)
+
+        # Load Json data if exist in the folder
+        try:
+            with open(self._record_path) as f:
+                self.data = json.load(f)
+        except IOError as e:
+            if e.errno == 2:
+                self.data = []
+            else:
+                raise e
 
     def _get_incremental_name(self):
         if self.name_count is None:
@@ -79,20 +89,7 @@ class Recorder(object):
     def _insert_group(self, key, val):
         self.group_cache[key] = val
 
-    def startup(self):
-        if not os.path.exists(self._folder_path):
-            os.mkdir(self._folder_path)
-
-        try:
-            with open(self._record_path) as f:
-                self.data = json.load(f)
-        except IOError as e:
-            if e.errno == 2:
-                self.data = []
-            else:
-                raise e
-
-    def teardown(self):
+    def close(self):
         f = open(self._record_path, 'w')
         json.dump(self.data, f)
         f.close()
