@@ -1,5 +1,6 @@
 from collections import defaultdict
 from contextlib import contextmanager
+import copy
 
 from globals import ctx
 from . import config
@@ -13,7 +14,7 @@ def with_cache(f):
             cache = ctx.sensing_cache
             if cache[self] is None:
                 cache[self] = f(self, *args, **kwargs)
-            return cache[self]
+            return copy.copy(cache[self])
         else:
             return f(self, *args, **kwargs)
 
