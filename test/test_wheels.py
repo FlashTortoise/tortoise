@@ -6,7 +6,7 @@ sys.path.append('../')
 from tortoise.effectors import Wheels
 
 
-class TestWheels(TestCase):
+class TestWheelsHardware(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.w = Wheels()
