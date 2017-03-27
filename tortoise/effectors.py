@@ -45,6 +45,18 @@ class Wheels(object):
         l, r = self.get_lr()
         return (l + r) / 2, (r - l) / 2
 
-    raw = property(get_raw, lambda self, value: self.set_raw(*value))
-    lr = property(get_lr, lambda self, value: self.set_lr(*value))
-    diff = property(get_diff, lambda self, value: self.set_diff(*value))
+    raw = property(get_raw)
+    lr = property(get_lr)
+    diff = property(get_diff)
+
+    @raw.setter
+    def raw(self, value):
+        self.set_raw(*value)
+
+    @lr.setter
+    def lr(self, value):
+        self.set_lr(*value)
+
+    @diff.setter
+    def diff(self, value):
+        self.set_diff(*value)
