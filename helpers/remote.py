@@ -11,8 +11,8 @@ ADDRESS = '192.168.1.1'
 PORT = 9999
 
 SENDING_FIELDS = {
-    'speed': lambda j: -joystick.JoystickType.get_axis(j, 1),
-    'diff': lambda j: -joystick.JoystickType.get_axis(j, 0)
+    'y': lambda j: -joystick.JoystickType.get_axis(j, 1),
+    'x': lambda j: joystick.JoystickType.get_axis(j, 2)
 }
 
 # Initialize joystick
