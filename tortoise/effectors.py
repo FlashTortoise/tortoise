@@ -14,13 +14,9 @@ class Wheels(object):
         self.ms = Motor(*config.WHEELS_PINS_RB)
 
         self._cache_speed = [
-            0, 0,
-            0, 0
+            0, 0, 0, 0
         ]
         self._read_lock = Lock()
-
-    def set(self, l, r):
-        self.set_lr(l, r)
 
     def set_lr(self, l, r):
         self.set_raw(l, l, r, r)
@@ -48,3 +44,7 @@ class Wheels(object):
     def get_diff(self):
         l, r = self.get_lr()
         return (l + r) / 2, (r - l) / 2
+
+    raw = property(get_raw, lambda self, value: self.set_raw(*value))
+    lr = property(get_lr, lambda self, value: self.set_lr(*value))
+    diff = property(get_diff, lambda self, value: self.set_diff(*value))
