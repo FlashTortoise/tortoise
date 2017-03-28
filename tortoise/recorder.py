@@ -52,16 +52,17 @@ class Recorder(object):
             name = ''.join(random.sample(string.hexdigits, 8))
         self.name = name
 
+        # Assign paths
         self._folder_path = os.path.join(config.RECORDER_PATH, self.name)
         self._record_path = os.path.join(self._folder_path, self.name + '.json')
 
+        # Members initialization
         self.name_count = None
         self.data = None
-
         self.group_cache = None
         self._insert = self._insert_one
 
-        # Make one if record folder is not here
+        # Make one if record folder is not exist
         if not os.path.exists(self._folder_path):
             os.mkdir(self._folder_path)
 
@@ -77,6 +78,8 @@ class Recorder(object):
 
     def _get_incremental_name(self):
         if self.name_count is None:
+            # Case: the first run
+            # Init the name count with the largest filename number + 1
             file_names = [
                 int(name.split('.')[0])
                 for name in os.listdir(self._folder_path)
@@ -87,6 +90,7 @@ class Recorder(object):
             else:
                 self.name_count = max(file_names) + 1
         else:
+            # Case: non-first
             self.name_count += 1
 
         return str(self.name_count).rjust(8, '0')
@@ -98,6 +102,9 @@ class Recorder(object):
         self.group_cache[key] = val
 
     def close(self):
+        """
+        Finalize a recorder. Call when destroy instances
+        """
         f = open(self._record_path, 'w')
         json.dump(self.data, f)
         f.close()
@@ -105,9 +112,9 @@ class Recorder(object):
     def record_img(self, name, img):
         # type: (str, numpy.ndarray) -> None
         """
-        This function is used to record an image (of type `numpy.ndarray`)
+        Record an image
         :param name: Specifying name of image
-        :param img: The actual image data
+        :param img: The actual image data in type numpy.ndarray
         """
         file_name = self._get_incremental_name() + '.jpg'
         cv2.imwrite(
@@ -122,7 +129,7 @@ class Recorder(object):
     def record_plain(self, name, var):
         # type: (str, object) -> None
         """
-        Used to record any non-image data like string and numbers
+        Record any non-image data like string and numbers
         :param name: Specifying name of variable
         :param var: The var that need recording
         """
@@ -130,6 +137,12 @@ class Recorder(object):
 
     @contextmanager
     def a_group(self):
+        """
+        Record data in a group
+        Typical usage:
+            with <some recorder>.a_group():
+                <do some recording>
+        """
         self.group_cache = {}
         self._insert = self._insert_group
         yield

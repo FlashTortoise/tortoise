@@ -2,6 +2,8 @@ from collections import defaultdict
 from contextlib import contextmanager
 import copy
 
+import numpy
+
 from globals import ctx
 from . import config
 
@@ -23,6 +25,10 @@ def with_cache(f):
 
 @contextmanager
 def cache_input():
+    """
+    Decorator that used to keep the sensed data unchanged. Or, in other word,
+    specifying the block of code that using only one captured value.
+    """
     ctx.sensing_cache.clear()
     yield
 
@@ -39,6 +45,10 @@ class Eye(object):
 
     @with_cache
     def see(self):
+        # type: () -> numpy.ndarray
+        """
+        :return: What viewed as numpy ndarray
+        """
         _, img = self._cap.read()
         while img is None:
             img = self._cap.get()
