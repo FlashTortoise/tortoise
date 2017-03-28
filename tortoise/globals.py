@@ -1,5 +1,3 @@
-from . import config
-
 _sentinel = object()
 
 
@@ -24,19 +22,21 @@ class ContextGlobal(object):
 
 
 class Peripheral(object):
-    def __getattr__(self, item):
-        if item in config.PERIPHERAL_SUPPORTED.keys():
-            import_string = config.PERIPHERAL_SUPPORTED[item]
-            module, cls = import_string.rsplit('.', 1)
+    @property
+    def eye(self):
+        # type: () -> Eye
+        if getattr(self, '_eye', None) is None:
+            from tortoise.sensors import Eye
+            setattr(self, '_eye', Eye())
+        return getattr(self, '_eye')
 
-            module = __import__(module, fromlist=[cls])
-            cls = getattr(module, cls)
-
-            self.__dict__[item] = ins = cls()
-
-            return ins
-        else:
-            raise AttributeError("Tortoise doesn't have such peripheral")
+    @property
+    def wheels(self):
+        # type: () -> Wheels
+        if getattr(self, '_wheels', None) is None:
+            from tortoise.effectors import Wheels
+            setattr(self, '_wheels', Wheels())
+        return getattr(self, '_wheels')
 
 
 ctx = ContextGlobal()

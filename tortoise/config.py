@@ -11,8 +11,3 @@ TORTOISE_WALK_PERIOD = 0.1
 
 # fix it: it seems that only relative directory can by accessed by open
 RECORDER_PATH = '.'
-
-PERIPHERAL_SUPPORTED = {
-    'eye': 'tortoise.sensors.Eye',
-    'wheels': 'tortoise.effectors.Wheels'
-}
