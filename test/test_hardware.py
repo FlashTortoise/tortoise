@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-import sys
+import cv2
 
-sys.path.append('../')
 from tortoise.effectors import Wheels
+from tortoise.sensors import Eye
 
 
 class TestWheelsHardware(TestCase):
@@ -38,3 +38,15 @@ class TestWheelsHardware(TestCase):
             self.fail()
 
         motor.value = 0
+
+
+class TestEyeHardware(TestCase):
+    def test_see(self):
+        e = Eye()
+        e._cap.set(3, 320)
+        e._cap.set(4, 240)
+        cv2.imshow('Test eye', e.see())
+        if cv2.waitKey(0) & 0xFF == 27:
+            self.fail()
+        else:
+            pass
