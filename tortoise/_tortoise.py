@@ -1,10 +1,13 @@
 import time
+import logging
 from contextlib import contextmanager
 
 from globals import ctx
 from sensors import cache_input
 from task import Task
 from . import config
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -25,9 +28,7 @@ def in_a_period():
     if remaining > 0:
         time.sleep(remaining)
     else:
-        pass
-        # Try some other non-interruption solutions
-        # raise Exception('running time exceed period')
+        logger.warn('stepping time exceed period')
 
 
 class Tortoise(object):
@@ -53,12 +54,15 @@ class Tortoise(object):
 
     def walk(self):
         self._validate_task()
+
+        logger.debug('start walking')
         try:
             while True:
                 with in_a_period():
                     with cache_input():
                         self.task.step()
         except KeyboardInterrupt:
+            logger.debug('start finalization')
             for fun in ctx.finalization:
                 try:
                     fun()
