@@ -60,3 +60,23 @@ class Wheels(object):
     @diff.setter
     def diff(self, value):
         self.set_diff(*value)
+
+
+# noinspection PyMissingConstructor
+class WheelsSimulator(Wheels):
+    def __init__(self):
+        # noinspection PyUnresolvedReferences
+        class Motor(object):
+            def __init__(self, *args):
+                self.value = 0
+
+        self.Motor = Motor
+        self.mq = Motor(*config.WHEELS_PINS_LF)
+        self.ma = Motor(*config.WHEELS_PINS_LB)
+        self.mw = Motor(*config.WHEELS_PINS_RF)
+        self.ms = Motor(*config.WHEELS_PINS_RB)
+
+        self._cache_speed = [
+            0, 0, 0, 0
+        ]
+        self._read_lock = Lock()
