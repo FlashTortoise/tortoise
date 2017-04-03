@@ -2,6 +2,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 import copy
 
+import cv2
 import numpy
 
 from globals import ctx
@@ -35,13 +36,12 @@ def cache_input():
 
 class Eye(object):
     def __init__(self):
-        import cv2
         self._cap = cv2.VideoCapture(config.EYE_CAPTURE_ID)
 
         width, height = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
         if height is not None and width is not None:
-            self._cap.set(3, width)
-            self._cap.set(4, width)
+            self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     @with_cache
     def see(self):
@@ -52,4 +52,27 @@ class Eye(object):
         _, img = self._cap.read()
         while img is None:
             img = self._cap.get()
+        return img
+
+
+# noinspection PyMissingConstructor
+class EyeSimulator(Eye):
+    def __init__(self):
+        self.data = config.EYE_SIMULATOR_DATASET
+
+        width, height = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
+        if height is not None and width is not None:
+            self._width, self._height = width, height
+        else:
+            self._width = self._height = None
+
+    @with_cache
+    def see(self):
+        # type: () -> numpy.ndarray
+        """
+        :return: What faked as numpy ndarray
+        """
+        img = cv2.imread(self.data.next())
+        if self._width is not None:
+            img = cv2.resize(img, dsize=(self._width, self._height))
         return img

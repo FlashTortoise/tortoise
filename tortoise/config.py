@@ -1,3 +1,5 @@
+# todo: update configs from user
+
 EYE_CAPTURE_ID = 0
 EYE_SIGHT_HEIGHT = 640
 EYE_SIGHT_WIDTH = 320
