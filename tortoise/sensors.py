@@ -60,7 +60,7 @@ class EyeSimulator(Eye):
     def __init__(self):
         self.data = config.EYE_SIMULATOR_DATASET
 
-        width, height = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
+        height, width = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
         if height is not None and width is not None:
             self._width, self._height = width, height
         else:
@@ -72,7 +72,7 @@ class EyeSimulator(Eye):
         """
         :return: What faked as numpy ndarray
         """
-        img = cv2.imread(self.data.next())
+        img = self.data.next()
         if self._width is not None:
             img = cv2.resize(img, dsize=(self._width, self._height))
         return img

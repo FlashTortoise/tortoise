@@ -1,3 +1,5 @@
+from tortoise import config
+
 _sentinel = object()
 
 
@@ -26,7 +28,10 @@ class Peripheral(object):
     def eye(self):
         # type: () -> Eye
         if getattr(self, '_eye', None) is None:
-            from tortoise.sensors import Eye
+            if config.EYE_SIMULATOR_ACTIVE:
+                from tortoise.sensors import EyeSimulator as Eye
+            else:
+                from tortoise.sensors import Eye
             setattr(self, '_eye', Eye())
         return getattr(self, '_eye')
 

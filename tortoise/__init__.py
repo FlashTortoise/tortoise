@@ -6,11 +6,11 @@ import config
 
 
 def update_config(*args, **kwargs):
-    if len(*args) == 1:
+    if len(args) == 1:
         for k, v in args[0]:
             kwargs[k] = v
 
-    for k, v in kwargs:
+    for k, v in kwargs.iteritems():
         setattr(config, k, v)
 
 
