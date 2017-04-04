@@ -7,7 +7,7 @@ from sensors import cache_input
 from task import Task
 from . import config
 
-logger = logging.getLogger(__name__)
+logger = logging
 
 
 @contextmanager
