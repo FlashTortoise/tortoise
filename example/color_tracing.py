@@ -1,11 +1,16 @@
 import glob
 import os
+from collections import namedtuple
 
 import cv2
 import numpy as np
 
 import tortoise as t
 from tortoise import config
+
+SIGHT_PIXEL_COUNT = (config.EYE_SIGHT_HEIGHT * config.EYE_SIGHT_WIDTH)
+EXPECTED_BLOCK_AREA = 20000
+HALF_WIDTH = config.EYE_SIGHT_WIDTH / 2
 
 
 def imgs(path):
@@ -31,6 +36,9 @@ class ColorTracingTask(t.Task):
     def step(self):
         self.find_task.step()
 
+        print 'speed: %5.3f direction: %8.1f' % (
+            self.find_task.speed, self.find_task.direction)
+
         # if find_result.found is True:
         #     self.follow(
         #         dir=find_result.dir,
@@ -40,20 +48,23 @@ class ColorTracingTask(t.Task):
         #     self.follow(dir=0, distance=0)
 
 
-def extract_info_from_contours(contours):
-    def moment2center_of_mass(moment):
-        mx = moment['m10'] / moment['m00']
-        my = moment['m01'] / moment['m00']
+ContourInfo = namedtuple('ContourInfo', 'area m10 m01')
+
+
+def extract_info_from_contours(contours, info):
+    def info2center_of_mass(ctr_info):
+        mx = ctr_info.m10 / ctr_info.area
+        my = ctr_info.m01 / ctr_info.area
         return mx, my
 
     weighted_xs, weighted_ys, sum_of_area = [], [], 0
-    for contour in contours:
-        m = cv2.moments(contour)
-        if m['m00'] == 0:
+    for contour, info_piece in zip(contours, info):
+
+        if info_piece.area == 0:
             continue
 
-        a = m['m00']
-        x, y = moment2center_of_mass(m)
+        a = info_piece.area
+        x, y = info2center_of_mass(info_piece)
         weighted_xs.append(x * a)
         weighted_ys.append(y * a)
         sum_of_area += a
@@ -64,57 +75,98 @@ def extract_info_from_contours(contours):
     return x, y, sum_of_area
 
 
-class FindBlockTask(t.Task):
-    def __init__(self):
-        super(FindBlockTask, self).__init__()
-
-        block_sizes = []
-        found = False
-
-    def step(self):
-        img = eye.see()
-        x, y, area = self.get_block_info(img)
-
-        print x, y, area
-
-    def get_block_info(self, img):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        img = cv2.inRange(img, (90, 43, 46), (124, 255, 255))
-        _, cotrs, _ = cv2.findContours(
-            img,
-            mode=cv2.RETR_TREE,
-            method=cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        rtn = x, y, area = extract_info_from_contours(cotrs)
-        return rtn
+def contour_size_filter(zipped):
+    contour, info = zipped
+    return info.area > 0.01 * SIGHT_PIXEL_COUNT
 
 
-def find_color():
-    img = eye.see()
+def analyse_contour(contour):
+    m = cv2.moments(contour)
+    info = ContourInfo(
+        area=m['m00'],
+        m10=m['m10'],
+        m01=m['m01']
+    )
 
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img = cv2.inRange(img, (90, 43, 46), (124, 255, 255))
+    return info
 
-    _, cotrs, _ = cv2.findContours(
+
+def find_contours(img):
+    _, contours, _ = cv2.findContours(
         img,
         mode=cv2.RETR_TREE,
         method=cv2.CHAIN_APPROX_SIMPLE
     )
 
-    x, y, area = extract_info_from_contours(cotrs)
+    return contours
 
-    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
-    img = cv2.circle(img, (int(x), int(y)), 10, color=(0, 255, 0),
-                     thickness=10)
+def check_if_block_touch_border(contours, info):
+    for contour, info_piece in zip(contours, info):
+        if np.any(contour[:, -1, 0] < 5):
+            return 'left'
+        elif np.any(contour[:, -1, 0] > config.EYE_SIGHT_WIDTH - 5):
+            return 'right'
 
-    cv2.drawContours(img, cotrs, -1, color=(0, 0, 255))
+    return False
 
-    cv2.imshow('img', img)
-    cv2.waitKey(0)
 
-    return object()
+
+class FindBlockTask(t.Task):
+    def __init__(self):
+        super(FindBlockTask, self).__init__()
+
+        self.found = False
+        self.speed = 0
+        self.direction = 0
+
+    def step(self):
+        img = eye.see()
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        img = cv2.inRange(img, (90, 43, 46), (124, 255, 255))
+
+        contours = find_contours(img)
+        info = map(analyse_contour, contours)
+
+        # contours, info = zip(filter(contour_size_filter, zip(contours, info)))
+        x, y, area = extract_info_from_contours(contours, info)
+
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        cv2.circle(img, (int(x), int(y)), radius=10, color=(255, 255, 0),
+                   thickness=10)
+        cv2.imshow('a', img)
+        cv2.waitKey(0)
+
+        if area < 0.01 * SIGHT_PIXEL_COUNT:
+            print 'not found'
+            self.set_not_found()
+            return
+        else:
+            # There must be a block in sight
+            self.found = True
+
+            if area > EXPECTED_BLOCK_AREA:
+                # Case: Block is big enough so that i can grasp it
+                self.speed = 0
+                self.direction = 0
+                return
+            else:
+                touched = check_if_block_touch_border(contours, info)
+                if touched == 'left':
+                    self.speed = 0
+                    self.direction = -30
+                elif touched == 'right':
+                    self.speed = 0
+                    self.direction = 30
+                else:
+                    self.speed = 0.2
+                    self.direction = (x - HALF_WIDTH) / HALF_WIDTH * 10
+
+    def set_not_found(self):
+        self.found = False
+        self.direction = 0
+        self.speed = 0
 
 
 if __name__ == '__main__':
