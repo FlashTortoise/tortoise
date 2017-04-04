@@ -19,10 +19,10 @@ def imgs(path):
         yield cv2.imread(pic_path)
 
 
-t.update_config(
-    EYE_SIMULATOR_ACTIVE=True,
-    EYE_SIMULATOR_DATASET=imgs('~/Downloads/imgs/*.JPG')
-)
+# t.update_config(
+#     EYE_SIMULATOR_ACTIVE=True,
+#     EYE_SIMULATOR_DATASET=imgs('~/Downloads/imgs/*.JPG')
+# )
 
 eye = t.peripheral.eye
 
@@ -132,11 +132,11 @@ class FindBlockTask(t.Task):
         # contours, info = zip(filter(contour_size_filter, zip(contours, info)))
         x, y, area = extract_info_from_contours(contours, info)
 
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        cv2.circle(img, (int(x), int(y)), radius=10, color=(255, 255, 0),
-                   thickness=10)
-        cv2.imshow('a', img)
-        cv2.waitKey(0)
+        # img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        # cv2.circle(img, (int(x), int(y)), radius=10, color=(255, 255, 0),
+        #            thickness=10)
+        # cv2.imshow('a', img)
+        # cv2.waitKey(0)
 
         if area < 0.01 * SIGHT_PIXEL_COUNT:
             print 'not found'
@@ -147,11 +147,13 @@ class FindBlockTask(t.Task):
             self.found = True
 
             if area > EXPECTED_BLOCK_AREA:
+                print 'Big enough'
                 # Case: Block is big enough so that i can grasp it
                 self.speed = 0
                 self.direction = 0
                 return
             else:
+                print 'not big enough', int(x), int(y)
                 touched = check_if_block_touch_border(contours, info)
                 if touched == 'left':
                     self.speed = 0
