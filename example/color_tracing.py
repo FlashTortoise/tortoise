@@ -24,6 +24,8 @@ def imgs(path):
 #     EYE_SIMULATOR_DATASET=imgs('~/Downloads/imgs/*.JPG')
 # )
 
+t.update_config(TORTOISE_WALK_PERIOD=1)
+
 eye = t.peripheral.eye
 
 
@@ -69,8 +71,11 @@ def extract_info_from_contours(contours, info):
         weighted_ys.append(y * a)
         sum_of_area += a
 
-    x = sum(weighted_xs) / sum_of_area
-    y = sum(weighted_ys) / sum_of_area
+    if sum_of_area != 0:
+        x = sum(weighted_xs) / sum_of_area
+        y = sum(weighted_ys) / sum_of_area
+    else:
+        x = y = 0
 
     return x, y, sum_of_area
 
@@ -120,6 +125,8 @@ class FindBlockTask(t.Task):
         self.speed = 0
         self.direction = 0
 
+        self.rec = t.get_recorder('block_following')
+
     def step(self):
         img = eye.see()
 
@@ -132,9 +139,10 @@ class FindBlockTask(t.Task):
         # contours, info = zip(filter(contour_size_filter, zip(contours, info)))
         x, y, area = extract_info_from_contours(contours, info)
 
-        # img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        # cv2.circle(img, (int(x), int(y)), radius=10, color=(255, 255, 0),
-        #            thickness=10)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        cv2.circle(img, (int(x), int(y)), radius=10, color=(255, 255, 0),
+                   thickness=10)
+
         # cv2.imshow('a', img)
         # cv2.waitKey(0)
 
@@ -153,8 +161,17 @@ class FindBlockTask(t.Task):
                 self.direction = 0
                 return
             else:
-                print 'not big enough', int(x), int(y)
+                print 'not big enough', int(x), int(y),
                 touched = check_if_block_touch_border(contours, info)
+                print touched
+                with self.rec.a_group():
+                    self.rec.record_img('img', img)
+                    self.rec.record_plain('info', {
+                        'x': x, 'y': y,
+                        'area': area,
+                        'touched': touched
+
+                    })
                 if touched == 'left':
                     self.speed = 0
                     self.direction = -30
@@ -162,6 +179,7 @@ class FindBlockTask(t.Task):
                     self.speed = 0
                     self.direction = 30
                 else:
+
                     self.speed = 0.2
                     self.direction = (x - HALF_WIDTH) / HALF_WIDTH * 10
 
