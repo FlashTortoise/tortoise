@@ -39,9 +39,8 @@ class Eye(object):
         self._cap = cv2.VideoCapture(config.EYE_CAPTURE_ID)
 
         width, height = config.EYE_SIGHT_HEIGHT, config.EYE_SIGHT_WIDTH
-        if height is not None and width is not None:
-            self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-            self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        if height is None or width is None:
+            raise ValueError('configuration of eye sight cannot be None')
 
     @with_cache
     def see(self):
@@ -52,7 +51,8 @@ class Eye(object):
         _, img = self._cap.read()
         while img is None:
             img = self._cap.get()
-        return img
+        return cv2.resize(img, dsize=(
+            config.EYE_SIGHT_WIDTH, config.EYE_SIGHT_HEIGHT))
 
 
 # noinspection PyMissingConstructor
