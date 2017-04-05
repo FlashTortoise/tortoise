@@ -22,11 +22,17 @@ def working_loop():
             return a
 
     def set_wheels(data):
-        data = json.loads(data)
-        w.set_diff(
-            data['speed'] * 0.8,
-            data['diff'] * 0.18
-        )
+        try:
+            data = json.loads(data)
+            print data
+            w.set_lr(
+                constrain((data['x'] ** 2 + data['y'] ** 2) ** 0.5 + data['x'],
+                          -1, 1),
+                constrain((data['x'] ** 2 + data['y'] ** 2) ** 0.5 - data['x'],
+                          -1, 1),
+            )
+        except ValueError:
+            pass
 
     receive_callbacks.append(set_wheels)
 
