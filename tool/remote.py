@@ -5,15 +5,39 @@ import pygame.joystick as joystick
 import time
 import json
 
+from math import copysign
+
 JOYSTICK_ID = 0
 PERIOD = 0.1
 ADDRESS = '192.168.1.1'
 PORT = 9999
 
-SENDING_FIELDS = {
-    'y': lambda j: -joystick.JoystickType.get_axis(j, 1),
-    'x': lambda j: joystick.JoystickType.get_axis(j, 2)
-}
+
+def constrain(a, l, u):
+    if a > u:
+        return u
+    elif a < l:
+        return l
+    else:
+        return a
+
+
+def dead_zone(a, zone):
+    return 0 if -zone < a < zone else a
+
+
+def prepare_control_signal(j):
+    # type: (joystick.JoystickType) -> dict
+    y = -j.get_axis(1)
+    x = j.get_axis(2)
+
+    l = constrain(copysign((x ** 2 + y ** 2) ** 0.5, y) + x, -1, 1)
+    r = constrain(copysign((x ** 2 + y ** 2) ** 0.5, y) - x, -1, 1)
+
+    return {'l': l, 'r': r}
+
+
+PREPARE_SIGNAL_FROM_JOYSTICK = prepare_control_signal
 
 # Initialize joystick
 pygame.init()
@@ -32,9 +56,9 @@ try:
             if event.type == pygame.QUIT:
                 pass
 
-        s.send(json.dumps({
-                              k: v(ctr) for k, v in SENDING_FIELDS.iteritems()
-                              }))
+        s.send(json.dumps(
+            PREPARE_SIGNAL_FROM_JOYSTICK(ctr)
+        ))
 
         value = ctr.get_axis(1)
         print '\r', ctr.get_axis(1),
