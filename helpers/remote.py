@@ -5,6 +5,8 @@ import pygame.joystick as joystick
 import time
 import json
 
+from math import copysign
+
 JOYSTICK_ID = 0
 PERIOD = 0.1
 ADDRESS = '192.168.1.1'
@@ -20,13 +22,18 @@ def constrain(a, l, u):
         return a
 
 
+def dead_zone(a, zone):
+    return 0 if -zone < a < zone else a
+
+
 def prepare_control_signal(j):
     # type: (joystick.JoystickType) -> dict
     y = -j.get_axis(1)
     x = j.get_axis(2)
 
-    l = constrain((x ** 2 + y ** 2) ** 0.5 + x, -1, 1)
-    r = constrain((x ** 2 + y ** 2) ** 0.5 - x, -1, 1)
+    l = constrain(copysign((x ** 2 + y ** 2) ** 0.5, y) + x, -1, 1)
+    r = constrain(copysign((x ** 2 + y ** 2) ** 0.5, y) - x, -1, 1)
+
     return {'l': l, 'r': r}
 
 
