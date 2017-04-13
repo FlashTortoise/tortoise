@@ -1,4 +1,5 @@
 import threading
+from sys import argv
 
 import let_tortoise_move as move
 import recording
@@ -12,4 +13,13 @@ move_process.start()
 # eye_server_process.daemon = True
 # eye_server_process.start()
 
-recording.record_working_loop()
+
+if __name__ == '__main__':
+    if len(argv) == 1:
+        recording.record_working_loop()
+    elif len(argv) == 2:
+        recording.record_working_loop(argv[1])
+    else:
+        print '''Too many arguments\n
+        Usage:
+            python <path to this file> [name]'''
