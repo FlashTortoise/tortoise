@@ -6,15 +6,14 @@ import cv2
 import matplotlib.pyplot as plt
 import color_detect as ct
 
-im = cv2.imread('C:/Users/Harry/Desktop/TDPS/color_recgonition/c2.jpg')
+im = cv2.imread('D:/TDPS/data/color_path1/60.jpg')
 # from RGB to HSV
 im_hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
 
-
 # define the boundaries of red, blue and green
-boundaries_red = [([156, 43, 46], [180, 255, 255])]
-boundaries_blue = [([90, 43, 46], [100, 255, 255])]
-boundaries_green = [([50, 43, 46], [77, 255, 255])]
+boundaries_red = [([125, 43, 46], [153, 255, 255])]
+boundaries_blue = [([100, 43, 46], [124, 255, 255])]
+boundaries_green = [([35, 43, 46], [77, 255, 255])]
 
 
 # find the red object
@@ -42,7 +41,8 @@ mask = cv2.add(mask_1, mask_green)
 im_object_1 = cv2.add(im_object_red, im_object_blue)
 im_object = cv2.add(im_object_1, im_object_green)'''
 
-mask, im_object, contours = ct.multi_color_track(im_hsv, boundaries_red, boundaries_green, boundaries_blue)
+mask, im_object, contours = ct.multi_color_track(
+    im_hsv, boundaries_red, boundaries_green, boundaries_blue)
 # find coutours
 '''im_gray = cv2.cvtColor(im_object, cv2.COLOR_BGR2GRAY)
 ret, binary = cv2.threshold(im_gray, 127, 255, cv2.THRESH_BINARY)
@@ -74,13 +74,17 @@ _, contours, _ = cv2.findContours(
     max_location = (cx, cy)
 
     return(max_location, max_ind, max_area, countours[max_ind])'''
-location, _, _, contours_find = ct.color_location(contours)
+location, _, area, contours_find = ct.color_location(contours)
+print area
 
-im_contours = cv2.drawContours(im_object, contours_find, -1, (0, 255, 0), 3)
-#cv2.imshow('object', im)
-cv2.circle(im_contours, location, 63, (0, 0, 255))
+im_object = cv2.cvtColor(im_object, cv2.COLOR_HSV2BGR)
+im_contours = cv2.drawContours(
+    im_object, [contours[0]], -1, (0, 0, 255), thickness=cv2.FILLED)
+
+# cv2.imshow('object', im)
+cv2.circle(im_contours, location, 63, (255, 0, 0))
 cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-cv2.imshow('image', np.hstack([im, im_contours]))
+cv2.imshow('image', im_contours)
 
 while cv2.waitKey(0) != 27:
     pass
