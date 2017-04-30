@@ -82,26 +82,32 @@ def color_location(im_hsv, contours):
     return(max_location,  max_area, contours[max_ind])
 
 
-def get_color(location, im_hsv, boundaries_red, boundaries_green, boundaries_blue):
+def get_color(contours, im_hsv, boundaries_red, boundaries_green, boundaries_blue):
     # get the color boundary of the location pixel
-    location_color = im_hsv[location[1], location[0]]
+    #location_color = im_hsv[location[1], location[0]]
+
+    h=np.delete(im_hsv,[1,2],2)
+    mask=np.zeros(h.shape,np.uint8)
+    cv2.drawContours(mask,[contours],0,255,-1)
+    location_color=cv2.mean(im_hsv,mask=mask.astype(np.uint8))
+    print location_color
 
     for (lower, upper) in boundaries_red:
         lower = np.array(lower)
         upper = np.array(upper)
-        if (location_color > lower).all() and (location_color < upper).all():
+        if (location_color[0:3] > lower).all() and (location_color[0:3] < upper).all():
             return boundaries_red
 
     for (lower, upper) in boundaries_green:
         lower = np.array(lower)
         upper = np.array(upper)
-        if (location_color > lower).all() and (location_color < upper).all():
+        if (location_color[0:3] > lower).all() and (location_color[0:3] < upper).all():
             return boundaries_green
 
     for (lower, upper) in boundaries_blue:
         lower = np.array(lower)
         upper = np.array(upper)
-        if (location_color > lower).all() and (location_color < upper).all():
+        if (location_color [0:3]> lower).all() and (location_color[0:3] < upper).all():
             return boundaries_blue
         else:
             print 'error: the detected color is not in the boundary '
