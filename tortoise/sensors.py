@@ -42,6 +42,8 @@ class Eye(object):
         if height is None or width is None:
             raise ValueError('configuration of eye sight cannot be None')
 
+        ctx.finalization.append(lambda: self._cap.release())
+
     @with_cache
     def see(self):
         # type: () -> numpy.ndarray
