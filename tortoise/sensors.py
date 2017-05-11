@@ -4,6 +4,7 @@ import copy
 
 import cv2
 import numpy
+import serial
 
 from globals import ctx
 from . import config
@@ -78,3 +79,21 @@ class EyeSimulator(Eye):
         if self._width is not None:
             img = cv2.resize(img, dsize=(self._width, self._height))
         return img
+
+
+class GyroScope(object):
+    def __init__(self):
+        self._s = serial.Serial('/dev/ttyACM0', baudrate=9600, timeout=0.05)
+
+    def get(self):
+        deg = None
+        while deg is None:
+            try:
+                self._s.write('a')
+                self._s.flush()
+                st = self._s.read(20)
+                deg = float(st)
+            except ValueError:
+                print 'received %s' % repr(st)
+
+        return deg

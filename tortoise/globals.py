@@ -43,6 +43,14 @@ class Peripheral(object):
             setattr(self, '_wheels', Wheels())
         return getattr(self, '_wheels')
 
+    @property
+    def gyroscope(self):
+        # type: () -> Gyroscope
+        if getattr(self, '_gyroscope', None) is None:
+            from tortoise.sensors import GyroScope
+            setattr(self, '_gyroscope', GyroScope())
+        return getattr(self, '_gyroscope')
+
 
 ctx = ContextGlobal()
 ctx.finalization = []
