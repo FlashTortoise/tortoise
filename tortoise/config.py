@@ -17,3 +17,6 @@ TORTOISE_WALK_PERIOD = 0.1
 
 # fix it: it seems that only relative directory can by accessed by open
 RECORDER_PATH = '.'
+
+CONTROLLER_BAUDRATE = 9600
+CONTROLLER_PORT_REGEX = 'usbmodem'

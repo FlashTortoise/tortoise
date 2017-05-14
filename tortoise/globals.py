@@ -25,6 +25,14 @@ class ContextGlobal(object):
 
 class Peripheral(object):
     @property
+    def mcu(self):
+        # type: () -> ExternalController
+        if getattr(self, '_mcu', None) is None:
+            from tortoise.effectors import ExternalController
+            setattr(self, '_mcu', ExternalController())
+        return getattr(self, '_mcu')
+
+    @property
     def eye(self):
         # type: () -> Eye
         if getattr(self, '_eye', None) is None:
