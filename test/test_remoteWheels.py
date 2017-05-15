@@ -18,3 +18,5 @@ for i in range(2):
     w.set_raw(*speeds)
     # time.sleep(1)
     raw_input('pause')
+
+w.set_raw(*([0] * 4))
