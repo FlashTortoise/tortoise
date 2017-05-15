@@ -88,3 +88,17 @@ class GyroScope(object):
 
     def get(self):
         return float(self.mcu.command('g'))
+
+
+class UltrasonicDistance(object):
+    def __init__(self):
+        from tortoise import p
+        self.mcu = p.mcu
+
+    def get(self, i):
+        assert 0 <= i <= 5
+        d = self.mcu.command('u%d' % i)
+        if d == '!DISTANCE':
+            return .0
+        else:
+            return float(d)
