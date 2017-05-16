@@ -81,7 +81,7 @@ class EyeSimulator(Eye):
         return img
 
 
-class GyroScope(object):
+class Yaw(object):
     def __init__(self):
         from tortoise import p
         self.mcu = p.mcu
@@ -90,7 +90,7 @@ class GyroScope(object):
         return float(self.mcu.command('g'))
 
 
-class UltrasonicDistance(object):
+class Ranging(object):
     def __init__(self):
         from tortoise import p
         self.mcu = p.mcu

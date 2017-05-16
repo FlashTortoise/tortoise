@@ -1,6 +1,6 @@
 import time
 
-from tortoise.sensors import UltrasonicDistance as Dis
+from tortoise.sensors import Ranging as Dis
 
 d = Dis()
 

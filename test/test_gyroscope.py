@@ -1,9 +1,9 @@
 import time
 
-from tortoise.sensors import GyroScope
+from tortoise.sensors import Yaw
 
-g = GyroScope()
+y = Yaw()
 
 while True:
-    print '\r' + str(g.get()),
+    print '\r' + str(y.get()),
     time.sleep(0.1)

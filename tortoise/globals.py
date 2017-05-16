@@ -55,8 +55,8 @@ class Peripheral(object):
     def gyroscope(self):
         # type: () -> Gyroscope
         if getattr(self, '_gyroscope', None) is None:
-            from tortoise.sensors import GyroScope
-            setattr(self, '_gyroscope', GyroScope())
+            from tortoise.sensors import Yaw
+            setattr(self, '_gyroscope', Yaw())
         return getattr(self, '_gyroscope')
 
 
