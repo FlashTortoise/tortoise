@@ -52,12 +52,20 @@ class Peripheral(object):
         return getattr(self, '_wheels')
 
     @property
-    def gyroscope(self):
-        # type: () -> Gyroscope
-        if getattr(self, '_gyroscope', None) is None:
+    def yaw(self):
+        # type: () -> Yaw
+        if getattr(self, '_yaw', None) is None:
             from tortoise.sensors import Yaw
-            setattr(self, '_gyroscope', Yaw())
-        return getattr(self, '_gyroscope')
+            setattr(self, '_yaw', Yaw())
+        return getattr(self, '_yaw')
+
+    @property
+    def ranging(self):
+        # type: () -> Ranging
+        if getattr(self, '_ranging', None) is None:
+            from tortoise.sensors import Ranging
+            setattr(self, '_ranging', Ranging())
+        return getattr(self, '_ranging')
 
 
 ctx = ContextGlobal()
