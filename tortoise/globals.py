@@ -47,7 +47,10 @@ class Peripheral(object):
     def wheels(self):
         # type: () -> Wheels
         if getattr(self, '_wheels', None) is None:
-            from tortoise.effectors import Wheels
+            if config.PERIPHERAL_USE_REMOTE_WHEELS:
+                from tortoise.effectors import RemoteWheels as Wheels
+            else:
+                from tortoise.effectors import Wheels
             setattr(self, '_wheels', Wheels())
         return getattr(self, '_wheels')
 
