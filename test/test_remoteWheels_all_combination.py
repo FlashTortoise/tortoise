@@ -17,19 +17,20 @@ def all_combinations(num=4):
             yield speeds
 
 
-for speeds in all_combinations():
-    print speeds
+try:
+    for speeds in all_combinations():
+        print speeds
 
-    vs = [v * 0.2 for v in speeds]
-    print vs
-    w.set_raw(*vs)
-    # time.sleep(1)
-    raw_input('pause')
+        vs = [v * 0.2 for v in speeds]
+        print vs
+        w.set_raw(*vs)
+        # time.sleep(1)
+        raw_input('pause')
 
-    # vs = [v * -0.2 for v in speeds]
-    # print vs
-    # w.set_raw( *vs )
-    # # time.sleep(1)
-    # raw_input('pause')
-
-w.set_raw(*([0] * 4))
+        # vs = [v * -0.2 for v in speeds]
+        # print vs
+        # w.set_raw( *vs )
+        # # time.sleep(1)
+        # raw_input('pause')
+finally:
+    w.set_raw(*([0] * 4))
