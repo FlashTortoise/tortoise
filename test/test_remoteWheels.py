@@ -4,7 +4,7 @@ from tortoise.effectors import RemoteWheels
 
 w = RemoteWheels()
 
-for i in range(2):
+for i in range(4):
     speeds = [0] * 4
 
     print "wheel {} is setting to 1".format(i)
