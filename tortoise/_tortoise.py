@@ -7,8 +7,7 @@ from sensors import cache_input
 from task import Task
 from . import config
 
-logger = logging
-
+logger = logging.getLogger('tortoise.main')
 
 @contextmanager
 def exclusive_run():
@@ -34,6 +33,7 @@ def in_a_period():
 class Tortoise(object):
     def __init__(self):
         self._task = None
+        logging.basicConfig()
         pass
 
     @property
@@ -61,10 +61,13 @@ class Tortoise(object):
                 with in_a_period():
                     with cache_input():
                         self.task.step()
-        except KeyboardInterrupt:
-            logger.debug('start finalization')
+        finally:
+            logger.debug('start finalization...')
             for fun in ctx.finalization:
                 try:
+                    logger.debug('try finalize fun')
                     fun()
+                    print 'aaaaa'
                 except Exception as e:
                     print e.message
+            logging.debug('finished finalization')

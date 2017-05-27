@@ -1,5 +1,6 @@
 from multiprocessing import Lock
 
+import logging
 import serial
 
 from tortoise import helper
@@ -8,6 +9,8 @@ from . import config
 
 
 class ExternalController(object):
+    logger = logging.getLogger('tortoise.p.mcu')
+
     def __init__(self):
         self._s = s = serial.Serial()
         s.baudrate = config.CONTROLLER_BAUDRATE
@@ -16,22 +19,22 @@ class ExternalController(object):
 
         ctx.finalization.append(lambda: s.close())
 
-    @staticmethod
-    def _get_port():
+    @classmethod
+    def _get_port(cls):
         import serial.tools.list_ports as lp
 
         devs = [p for p in lp.grep(config.CONTROLLER_PORT_REGEX)]
         sport = None
 
         if len(devs) == 0:
+            cls.logger.error('None of serial port satisfy condition')
             raise Exception('None of serial port satisfy condition')
         elif len(devs) == 1:
             sport = devs[0]
         else:
             raise Exception('Multiple device satisfies regex')
 
-        # todo: use log
-        print 'Chosen: ', sport.device
+        cls.logger.info('Chosen: {}'.format(sport.device))
 
         return sport.device
 
@@ -145,6 +148,8 @@ class WheelsSimulator(Wheels):
 
 
 class RemoteWheels(object):
+    logger = logging.getLogger('tortoise.p.wheels')
+
     def __init__(self):
         from tortoise.globals import peripheral as p
         self.mcu = p.mcu
@@ -168,11 +173,12 @@ class RemoteWheels(object):
     def set_raw(self, q, a, w, s):
         cmd_word = 'm{:.2f} {:.2f} {:.2f} {:.2f}'.format(
             *[helper.mlimit(v, 1) for v in [q, a, w, s]])
-        print cmd_word
+
+        self.logger.debug('sent command word: "{}"'.format(cmd_word))
+
         rtn = self.mcu.command(cmd_word)
         if rtn != 'OK':
-            # Warning
-            pass
+            self.logger.warn('set wheels failed')
 
         with self._read_lock:
             self._cache_speed = q, w, a, s

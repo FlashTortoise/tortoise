@@ -1,3 +1,5 @@
+import logging
+
 from globals import ctx, peripheral
 from recorder import get_recorder
 from _tortoise import Tortoise
@@ -17,3 +19,6 @@ def update_config(*args, **kwargs):
 config.update = update_config
 
 p = peripheral
+
+overall = logging.getLogger('tortoise')
+overall.setLevel(config.LOGGING_LEVEL)
