@@ -70,6 +70,14 @@ class Peripheral(object):
             setattr(self, '_ranging', Ranging())
         return getattr(self, '_ranging')
 
+    @property
+    def rxtx(self):
+        # type: () -> RxTx
+        if getattr(self, '_rxtx', None) is None:
+            from tortoise.effectors import RxTx
+            setattr(self, '_rxtx', RxTx())
+        return getattr(self, '_rxtx')
+
 
 ctx = ContextGlobal()
 ctx.finalization = []
