@@ -15,6 +15,7 @@ class ExternalController(object):
         self._s = s = serial.Serial()
         s.baudrate = config.CONTROLLER_BAUDRATE
         s.port = self._get_port()
+        s.timeout = 1
         s.open()
 
         ctx.finalization.append(lambda: s.close())
