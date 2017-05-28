@@ -6,6 +6,10 @@ from _tortoise import Tortoise
 from task import Task
 import config
 
+overall = logging.getLogger('tortoise')
+overall.setLevel(config.LOGGING_LEVEL)
+logging.basicConfig()
+
 
 def update_config(*args, **kwargs):
     if len(args) == 1:
@@ -19,6 +23,3 @@ def update_config(*args, **kwargs):
 config.update = update_config
 
 p = peripheral
-
-overall = logging.getLogger('tortoise')
-overall.setLevel(config.LOGGING_LEVEL)

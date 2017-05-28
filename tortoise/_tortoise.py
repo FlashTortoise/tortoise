@@ -33,7 +33,6 @@ def in_a_period():
 class Tortoise(object):
     def __init__(self):
         self._task = None
-        logging.basicConfig()
         pass
 
     @property
