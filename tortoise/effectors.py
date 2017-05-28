@@ -210,3 +210,34 @@ class RemoteWheels(object):
     @diff.setter
     def diff(self, value):
         self.set_diff(*value)
+
+
+class RxTx(object):
+    logger = logging.getLogger('tortoise.p.rxtx')
+
+    def __init__(self):
+        self.logger.info('Init')
+        from tortoise.globals import peripheral as p
+        self.mcu = p.mcu
+
+    def send(self, message):
+        # type: (str) -> None
+        def trim_length(s, length):
+            while len(s) >= length:
+                st, s = s[0:length], s[length:]
+                yield st
+            yield s
+
+        for msglet in trim_length(message, 80):
+            self.mcu.command('w' + msglet)
+
+    def recv(self):
+        reply = ''
+        while True:
+            part = self.mcu.command('r')
+            if part == '!NO_DATA':
+                break
+            else:
+                reply += part
+
+        return reply
