@@ -46,6 +46,7 @@ class ExternalController(object):
             cmd, sum([ord(c) for c in '$' + cmd]) & 0xff)
         # Send command
         self._s.write(t_pack)
+        self._s.flush()
 
         # Gather reply
         r_pack = self._s.read_until('#') + self._s.read(2)
