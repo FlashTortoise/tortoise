@@ -78,6 +78,14 @@ class Peripheral(object):
             setattr(self, '_rxtx', RxTx())
         return getattr(self, '_rxtx')
 
+    @property
+    def inclination(self):
+        # type () -> Inclination
+        if getattr(self, '_inclination', None) is None:
+            from tortoise.sensors import Inclination
+            setattr(self, '_inclination', Inclination())
+        return getattr(self, '_inclination')
+
 
 ctx = ContextGlobal()
 ctx.finalization = []

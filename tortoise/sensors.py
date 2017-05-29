@@ -95,31 +95,33 @@ class Inclination(object):
     def __init__(self):
         from tortoise import p
         self.mcu = p.mcu
-        self.h = self.r = self.d = 0
 
+    @with_cache
     def _gather(self):
         a = 1
         while True:
             a = self.mcu.command('a').split(',')
             if len(a) == 3:
                 try:
-                    self.h, self.r, self.d = [float(f) for f in a]
+                    h, r, d = [float(f) for f in a]
                 except ValueError:
                     pass
                 else:
                     break
 
-        self.abs = math.sqrt(self.h ** 2 + self.r ** 2 + self.d ** 2)
+        return h, r, d
 
     def pitch(self):
-        rad = math.asin(self.h / math.sqrt(self.h ** 2 + self.d ** 2))
-        if self.d > 0:
+        h, r, d = self._gather()
+        rad = math.asin(h / math.sqrt(h ** 2 + d ** 2))
+        if d < 0:
             rad = -rad
         return math.degrees(rad)
 
     def roll(self):
-        rad = math.asin(self.r / math.sqrt(self.r ** 2 + self.d ** 2))
-        if self.d > 0:
+        h, r, d = self._gather()
+        rad = math.asin(r / math.sqrt(r ** 2 + d ** 2))
+        if d > 0:
             rad = -rad
         return math.degrees(rad)
 
