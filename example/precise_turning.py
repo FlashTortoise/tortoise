@@ -65,11 +65,11 @@ class Turning(Task):
         self.target_yaw = 0
 
     def step(self):
-        deg = p.gyroscope.get()
+        deg = p.yaw.get()
         diff = constrain(self.c.run(self.target_yaw - deg), -0.4, 0.4)
 
         print deg, diff
-        p.wheels.set_diff(speed=0, diff=diff)
+        p.wheels.set_diff(speed=0, diff=-diff)
 
 
 if __name__ == '__main__':
