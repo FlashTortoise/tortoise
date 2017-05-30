@@ -68,7 +68,14 @@ class ExternalController(object):
         reply_sum = sum(map(ord, r_pack[start:-3])) & 0xff
         trans_sum = int(r_pack[-2:], base=16)
         reply = r_pack[start + 2:-3]
-        return reply if reply_sum == trans_sum else None
+
+        if reply_sum != trans_sum:
+            self.logger.warning(
+                'check sum error (calc="{}", recv="{}")'.format(
+                    reply_sum, trans_sum))
+            return None
+        else:
+            return reply
 
 
 class Wheels(object):
@@ -181,7 +188,7 @@ class RemoteWheels(object):
 
         rtn = self.mcu.command(cmd_word)
         if rtn != 'OK':
-            self.logger.warn('set wheels failed')
+            self.logger.warn('set wheels failed with return {}'.format(rtn))
 
         with self._read_lock:
             self._cache_speed = q, w, a, s
