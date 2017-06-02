@@ -80,11 +80,19 @@ class Peripheral(object):
 
     @property
     def inclination(self):
-        # type () -> Inclination
+        # type: () -> Inclination
         if getattr(self, '_inclination', None) is None:
             from tortoise.sensors import Inclination
             setattr(self, '_inclination', Inclination())
         return getattr(self, '_inclination')
+
+    @property
+    def servo(self):
+        # type: () -> Servo
+        if getattr(self, '_servo', None) is None:
+            from tortoise.effectors import Servo
+            setattr(self, '_servo', Servo())
+        return getattr(self, '_servo')
 
 
 ctx = ContextGlobal()

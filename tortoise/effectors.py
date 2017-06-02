@@ -251,3 +251,22 @@ class RxTx(object):
                 reply += part
 
         return reply
+
+
+# noinspection PyUnresolvedReferences
+class Servo(object):
+    def __init__(self):
+        from gpiozero import Servo
+        self.servo = Servo(
+            pin=config.SERVO_PIN,
+            min_pulse_width=config.SERVO_MIN_PULSE_WIDTH,
+            max_pulse_width=config.SERVO_MAX_PULSE_WIDTH)
+
+    def min(self):
+        self.servo.min()
+
+    def mid(self):
+        self.servo.mid()
+
+    def max(self):
+        self.servo.max()
